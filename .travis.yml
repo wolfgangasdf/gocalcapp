@@ -1,0 +1,31 @@
+language: go
+
+go:
+- 1.13
+
+matrix:
+  include:
+    - os: osx
+      script:
+      - go build -v
+      - go get fyne.io/fyne/cmd/fyne
+      - fyne package -os darwin -icon icon.png
+      - zip -r gocalcapp-mac.zip gocalcapp.app
+      env: DEPLOY_FILE=gocalcapp-mac.zip
+    - os: windows
+      script:
+      - go build -v
+      - go get fyne.io/fyne/cmd/fyne
+      - fyne package -os windows -icon icon.png
+      env: DEPLOY_FILE=gocalcapp.exe
+
+
+deploy:
+  provider: releases
+  skip_cleanup: true 
+  api_key:
+    secure: KdDHfRJttaR+2DdNnXGdkRmE0nsRagkEagB59nkogR048TdI9CWkJlGTVqMUcpNios3pKHqV0tf3uig43Thwl8Si3VcF96PeDmiTdGZTIpLMSWPhknmy/GWbyEYFEBOIbodrcP7T5R0FH424WsI9L1hXgAlZevmzVvK0QwHJuKITopJDD2ehn/nnXY47GwwlxN+XHIFvynFZxRBbahHP/ptAYinEvBPPHfWtLuOYRc6wZJ/T4/+60MHPENQd0xV/NzsVOvO56PgwYhQLvAYVTyKn9vfzlWZq/LN+bTY4idkryTcch4xZZ69MK51PqwU9ToPAZDapfbVCKOujeVZySITYkmEoJDnPvzGpbtAvVUDmrBXzCpP6airaGox82hFPEo8MBsVUXntEjoQsu+CJuyVL210EfOWqpB1ruLfrLic+Va88GUl5d9xUqnH8HS0an+ZU464b9T5ywaEcSSai7l/OKOMpnToDEMhP0ZmMTJ5h+cUPEVA3OR+jlVnL49Lp6DlKkuB7Q5LfQ+SngnYLkEDj5UpQHmfnDvYqW3p2n5H1ofvRiOVQ7WGdQT9kUuhDCRoon6KJvZa+8vmz+4xgenB21GPNDSZg3J2KFC1dNbuX+nS2eq59c90dd+I5b5yJP6JgjazBHmpjf233KxwIC9AqjVIoyBsQ/k6nwn4r3HQ=
+  file: $DEPLOY_FILE
+  on:
+    repo: wolfgangasdf/gocalcapp
+    tags: true # true: only deploy if commit has a tag
