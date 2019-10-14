@@ -2,18 +2,21 @@
 package main
 
 import (
-	"fmt"
+	"bufio"
+	"io/ioutil"
+	"os"
 
+	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/theme"
 )
 
 func main() {
-	fmt.Println("huhu")
-
 	app := app.New()
 	app.Settings().SetTheme(theme.LightTheme())
-	// app.SetIcon(icon.CalculatorBitmap)
+	iconFile, _ := os.Open("icon.png")
+	iconData, _ := ioutil.ReadAll(bufio.NewReader(iconFile))
+	app.SetIcon(fyne.NewStaticResource("icon", iconData))
 	Show(app)
 	app.Run()
 }

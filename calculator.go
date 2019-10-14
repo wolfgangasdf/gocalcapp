@@ -44,7 +44,6 @@ func (s *InputField) walkHistory(diff int) {
 }
 
 func (s *InputField) TypedKey(key *fyne.KeyEvent) {
-	log.Println("key: " + key.Name)
 	switch key.Name {
 	case fyne.KeyReturn:
 		s.c.evaluate()
