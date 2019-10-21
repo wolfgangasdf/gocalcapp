@@ -1,4 +1,4 @@
-module example.com/gocalcapp
+module github.com/wolfgangasdf/gocalcapp
 
 go 1.13
 

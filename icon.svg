@@ -29,15 +29,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.76"
-     inkscape:cx="158.85339"
-     inkscape:cy="665.26316"
+     inkscape:cx="-24.041344"
+     inkscape:cy="823.1579"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1468"
      inkscape:window-height="941"
      inkscape:window-x="141"
-     inkscape:window-y="65"
+     inkscape:window-y="23"
      inkscape:window-maximized="0"
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-midpoints="true" />
@@ -59,20 +59,20 @@
      id="layer1">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:50.79999924px;line-height:89.99999762%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="27.818663"
-       y="65.971672"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:59.97222137px;line-height:64.99999762%;font-family:Calibri;-inkscape-font-specification:'Calibri, Bold';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.70000005;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="28.159039"
+       y="71.370544"
        id="text4141"
-       sodipodi:linespacing="89.999998%"><tspan
+       sodipodi:linespacing="64.999998%"><tspan
          sodipodi:role="line"
          id="tspan4143"
-         x="27.818663"
-         y="65.971672"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:50.79999924px;line-height:89.99999762%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332px">+ −</tspan><tspan
+         x="28.159039"
+         y="71.370544"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:59.97222137px;line-height:64.99999762%;font-family:Calibri;-inkscape-font-specification:'Calibri, Bold';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke:#000000;stroke-width:1.70000005;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">+ −</tspan><tspan
          sodipodi:role="line"
-         x="27.818663"
-         y="111.69167"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:50.79999924px;line-height:89.99999762%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332px"
+         x="28.159039"
+         y="110.35249"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:59.97222137px;line-height:64.99999762%;font-family:Calibri;-inkscape-font-specification:'Calibri, Bold';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke:#000000;stroke-width:1.70000005;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="tspan4145">× ÷</tspan></text>
     <rect
        style="opacity:0.58999999;fill:none;fill-opacity:0;stroke:none;stroke-width:6.72210026;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -82,11 +82,15 @@
        x="6.3550167"
        y="16.816072" />
     <rect
-       style="opacity:0.58999999;fill:none;fill-opacity:0;stroke:#000000;stroke-width:5.13539028;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:0.58999999;fill:none;fill-opacity:0;stroke:#000000;stroke-width:5.13500023;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4147-2"
        width="89.511002"
        height="89.510994"
        x="20.183376"
-       y="30.644434" />
+       y="30.644434"
+       ry="19.84375"
+       inkscape:export-filename="/Users/wolle/programming/01-gocalcapp/gocalcapp/rect4147-2.png"
+       inkscape:export-xdpi="132.02101"
+       inkscape:export-ydpi="132.02101" />
   </g>
 </svg>

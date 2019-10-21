@@ -5,7 +5,7 @@ This is a [go/golang](https://golang.org) port of the very useful [Calc.app](htt
 Download from releases, run, enter `help` to get some help.
 
 ### Build
-See `.travis.yml`:  `go build`
+See `.travis.yml`.
 
 ### Limits
 

@@ -7,13 +7,15 @@ matrix:
   include:
     - os: osx
       script:
-      - go build -v
+      - go generate -v
+      - MACOSX_DEPLOYMENT_TARGET=10.13 go build -v
       - go get fyne.io/fyne/cmd/fyne
       - fyne package -os darwin -icon icon.png
       - zip -r gocalcapp-mac.zip gocalcapp.app
       env: DEPLOY_FILE=gocalcapp-mac.zip
     - os: windows
       script:
+      - go generate -v
       - go build -v -ldflags -H=windowsgui
       - go get fyne.io/fyne/cmd/fyne
       - fyne package -os windows -icon icon.png
