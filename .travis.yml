@@ -6,6 +6,7 @@ go:
 matrix:
   include:
     - os: osx
+      install: true # otherwise build called before generate
       script:
       - go generate -v
       - MACOSX_DEPLOYMENT_TARGET=10.13 go build -v
@@ -14,6 +15,7 @@ matrix:
       - zip -r gocalcapp-mac.zip gocalcapp.app
       env: DEPLOY_FILE=gocalcapp-mac.zip
     - os: windows
+      install: true
       script:
       - go generate -v
       - go build -v -ldflags -H=windowsgui
