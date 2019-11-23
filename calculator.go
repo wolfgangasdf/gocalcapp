@@ -144,6 +144,16 @@ func (c *calc) evalExpr(s string) (float64, error) {
 	}
 }
 
+func (c *calc) evalExpression(text1 string) (float64, bool, string, error) {
+	text2 := c.replaceexpnumbers(text1)
+	text2 = strings.ReplaceAll(text2, "^", "**")
+	log.Println("eval repl: ", text2)
+	isass, asspara, text3 := c.isAssignment(text2)
+	log.Println("eval ass: ", isass, asspara, text3)
+	fres, eres := c.evalExpr(text3)
+	return fres, isass, asspara, eres
+}
+
 const tagres = "   "
 const taginf = "?  "
 
@@ -192,16 +202,12 @@ func (c *calc) evaluate() {
 	// evaluate expression
 	c.addToHistory(text1)
 	c.inputHistory = append(c.inputHistory, text1)
-	text2 := c.replaceexpnumbers(c.input.Text)
-	log.Println("eval repl: ", text2)
-	isass, asspara, text3 := c.isAssignment(text2)
-	log.Println("eval ass: ", isass, asspara, text3)
-	c.lastR += 1
-	para := fmt.Sprintf("r%d", c.lastR)
-	if isass {
-		para = asspara
+	fres, isass, asspara, eres := c.evalExpression(text1)
+	para := asspara
+	if !isass {
+		c.lastR += 1
+		para = fmt.Sprintf("r%d", c.lastR)
 	}
-	fres, eres := c.evalExpr(text3)
 	if eres == nil {
 		c.parameters[para] = fres
 		c.addToHistory(tagres + para + "=" + c.f2s(fres))
