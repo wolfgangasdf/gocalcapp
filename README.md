@@ -2,7 +2,7 @@
 This is a [go/golang](https://golang.org) port of the very useful [Calc.app](https://apps.micw.org) using [fyne](https://github.com/fyne-io/fyne) and [govaluate](https://github.com/Knetic/govaluate).
 
 ### Usage
-Download from releases, run, enter `help` to get some help.
+Download from releases, run, enter `help` to get some help. It is not signed, google for "open unsigned <platform>".
 
 For syntax, see https://github.com/Knetic/govaluate/blob/master/MANUAL.md with the following modifications:
 
