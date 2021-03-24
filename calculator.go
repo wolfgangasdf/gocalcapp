@@ -12,26 +12,26 @@ import (
 	"strconv"
 	"strings"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/driver/desktop"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/widget"
-
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 	"github.com/Knetic/govaluate"
 )
 
-func NewInputField(c *calc) *InputField {
+func newInputField(c *calc) *inputField {
 	search := widget.NewEntry()
 	search.SetPlaceHolder(`Expression or "help"`)
-	return &InputField{search, c}
+	return &inputField{search, c}
 }
 
-type InputField struct {
+type inputField struct {
 	*widget.Entry
 	c *calc
 }
 
-func (s *InputField) walkHistory(diff int) {
+func (s *inputField) walkHistory(diff int) {
 	s.c.inputHistPos += diff
 	if s.c.inputHistPos < 0 || s.c.inputHistPos > len(s.c.inputHistory)-1 {
 		s.c.inputHistPos = 0
@@ -43,7 +43,7 @@ func (s *InputField) walkHistory(diff int) {
 	}
 }
 
-func (s *InputField) TypedKey(key *fyne.KeyEvent) {
+func (s *inputField) TypedKey(key *fyne.KeyEvent) {
 	switch key.Name {
 	case fyne.KeyReturn:
 		s.c.evaluate()
@@ -59,27 +59,27 @@ func (s *InputField) TypedKey(key *fyne.KeyEvent) {
 	}
 }
 
-func (s *InputField) CreateRenderer() fyne.WidgetRenderer {
-	return widget.Renderer(s.Entry)
-}
+// func (s *inputField) createRenderer() fyne.WidgetRenderer {
+// 	return widget.Renderer(s.Entry)
+// }
 
-func (s *InputField) mySetText(t string) {
+func (s *inputField) mySetText(t string) {
 	s.Entry.SetText(t)
 	s.c.window.Canvas().Refresh(s.c.window.Content()) // important, bug?
 	if t != "" {                                      // select all
-		s.Entry.TypedKey(&fyne.KeyEvent{fyne.KeyHome})
-		s.Entry.KeyDown(&fyne.KeyEvent{desktop.KeyShiftLeft})
-		s.Entry.TypedKey(&fyne.KeyEvent{fyne.KeyEnd})
-		s.Entry.KeyUp(&fyne.KeyEvent{desktop.KeyShiftLeft})
+		s.Entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyHome})
+		s.Entry.KeyDown(&fyne.KeyEvent{Name: desktop.KeyShiftLeft})
+		s.Entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyEnd})
+		s.Entry.KeyUp(&fyne.KeyEvent{Name: desktop.KeyShiftLeft})
 	}
 }
 
 type calc struct {
-	input        *InputField
+	input        *inputField
 	inputHistory []string
 	inputHistPos int
 	history      *widget.Entry
-	scrollhist   *widget.ScrollContainer
+	scrollhist   *container.Scroll
 	window       fyne.Window
 	functions    map[string]govaluate.ExpressionFunction
 	parameters   map[string]interface{} // variables
@@ -89,10 +89,9 @@ type calc struct {
 }
 
 func (c *calc) histScrollToEnd() {
-	for range "12" { // bug? needs this twice or not scrolled far enough
-		c.scrollhist.Scrolled(&fyne.ScrollEvent{fyne.PointEvent{}, 0, -c.history.Size().Height})
-	}
-	c.window.Canvas().Refresh(c.window.Content()) // important, bug?
+	// c.scrollhist.ScrollToBottom() // doesn't work
+	c.history.CursorRow = strings.Count(c.history.Text, "\n") + 1 // hack
+	log.Println("scrolltoend!!! ", c.scrollhist.Offset.Y)
 }
 
 func (c *calc) addToHistory(eres string) {
@@ -107,9 +106,8 @@ func (c *calc) replaceexpnumbers(expr string) string {
 		res, err := strconv.ParseFloat(s, 64)
 		if err == nil {
 			return fmt.Sprintf("%.99f", res)
-		} else {
-			return "err"
 		}
+		return "err"
 	})
 	return s2
 }
@@ -136,12 +134,10 @@ func (c *calc) evalExpr(s string) (float64, error) {
 		result, err2 := expression.Evaluate(c.parameters)
 		if err2 == nil {
 			return result.(float64), nil
-		} else {
-			return 0, err2
 		}
-	} else {
-		return 0, err
+		return 0, err2
 	}
+	return 0, err
 }
 
 func (c *calc) evalExpression(text1 string) (float64, bool, string, error) {
@@ -205,7 +201,7 @@ func (c *calc) evaluate() {
 	fres, isass, asspara, eres := c.evalExpression(text1)
 	para := asspara
 	if !isass {
-		c.lastR += 1
+		c.lastR++
 		para = fmt.Sprintf("r%d", c.lastR)
 	}
 	if eres == nil {
@@ -217,24 +213,18 @@ func (c *calc) evaluate() {
 	c.input.mySetText(c.f2s(fres))
 }
 
-func (c *calc) addButton(text string, action func()) *widget.Button {
-	button := widget.NewButton(text, action)
-
-	return button
-}
-
 func (c *calc) loadUI(app fyne.App) {
-	c.input = NewInputField(c)
+	c.input = newInputField(c)
 	c.history = widget.NewMultiLineEntry()
 	// history.SetReadOnly(true) // then can't select
-	c.scrollhist = widget.NewScrollContainer(c.history)
+	c.scrollhist = container.NewVScroll(c.history)
 	c.scrollhist.Resize(fyne.NewSize(200, 200))
 
 	c.window = app.NewWindow("Calc")
 	// c.window.SetIcon(icon.CalculatorBitmap)
 	c.window.Resize(fyne.NewSize(300, 400))
 
-	maincontainer := fyne.NewContainerWithLayout(layout.NewBorderLayout(
+	maincontainer := container.New(layout.NewBorderLayout(
 		nil,
 		c.input,
 		nil, nil),
@@ -248,14 +238,13 @@ func (c *calc) loadUI(app fyne.App) {
 
 	c.window.Show()
 
-	c.histScrollToEnd()
-
 	c.window.Canvas().Focus(c.input)
 
 	c.window.SetOnClosed(func() {
 		c.saveSettings()
 	})
 
+	c.histScrollToEnd() // doesn't work here
 }
 
 func (c *calc) loadSettings() {
@@ -316,6 +305,22 @@ func (c *calc) initParameters() {
 	c.parameters["e"] = math.E
 }
 
+func factorial(args ...interface{}) (interface{}, error) {
+	xf := args[0].(float64)
+	if xf != math.Abs(math.Trunc(xf)) {
+		return nil, errors.New("factorial needs positive integer")
+	}
+	if len(args) != 1 {
+		return nil, errors.New("factorial needs one argument")
+	}
+	x := int(xf)
+	f := float64(1)
+	for i := 1; i <= x; i++ {
+		f *= float64(i)
+	}
+	return f, nil
+}
+
 func newCalculator() *calc {
 
 	c := &calc{}
@@ -335,10 +340,9 @@ func newCalculator() *calc {
 	checkDoOneArg := func(fun func(float64) float64) func(args ...interface{}) (interface{}, error) {
 		return func(args ...interface{}) (interface{}, error) {
 			if len(args) != 1 {
-				return nil, errors.New("sin needs one argument, have ")
-			} else {
-				return fun(args[0].(float64)), nil
+				return nil, errors.New("needs one argument")
 			}
+			return fun(args[0].(float64)), nil
 		}
 	}
 
@@ -363,10 +367,12 @@ func newCalculator() *calc {
 	c.functions["exp2"] = checkDoOneArg(math.Exp2)
 	c.functions["sqrt"] = checkDoOneArg(math.Sqrt)
 	c.functions["cbrt"] = checkDoOneArg(math.Cbrt)
+	c.functions["factorial"] = factorial
 
 	return c
 }
 
+// Show app
 func Show(app fyne.App) {
 	c := newCalculator()
 	c.loadUI(app)
