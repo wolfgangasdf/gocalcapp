@@ -1,0 +1,137 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+
+# based on https://github.com/drognisep/fyne-testing/blob/feature/github-actions/.github/workflows/package-todo.yml
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create-release-step.outputs.upload_url }}
+    steps:
+      - name: Make release
+        id: "create-release-step"
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Latest build"
+
+  package-linux:
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install native deps
+        run: |
+          sudo apt update
+          sudo apt install gcc libgl1-mesa-dev xorg-dev -y
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Install Fyne CLI
+        run: |
+          go install fyne.io/fyne/v2/cmd/fyne@latest
+          $HOME/go/bin/fyne version
+      - name: Fyne Package
+        run: |
+          go generate -v
+          $HOME/go/bin/fyne package -icon icon.png
+          mv gocalcapp.tar.xz gocalcapp-linux.tar.xz
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'gocalcapp-linux.tar.xz'
+          path: '.'
+      - name: Add to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./gocalcapp-linux.tar.xz
+          asset_name: gocalcapp-linux.tar.xz
+          asset_content_type: application/x-tar
+
+  package-windows:
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install native deps
+        run: |
+          choco install msys2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Install Fyne CLI
+        run: |
+          go install fyne.io/fyne/v2/cmd/fyne@latest
+          Start-Process -PSPath "$HOME\go\bin\fyne.exe" -ArgumentList "version" -NoNewWindow -Wait
+      - name: Fyne Package
+        run: |
+          go generate -v
+          Start-Process -PSPath "$HOME\go\bin\fyne.exe" -ArgumentList "package -icon icon.png" -NoNewWindow -Wait
+      - name: Zip Release
+        uses: TheDoctor0/zip-release@main
+        with:
+          type: 'zip'
+          filename: 'gocalcapp-windows.zip'
+          path: 'gocalcapp.exe'
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'gocalcapp-windows.zip'
+          path: '.'
+      - name: Add to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./gocalcapp-windows.zip
+          asset_name: gocalcapp-windows.zip
+          asset_content_type: application/zip
+
+  package-mac:
+    needs: create-release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Install Fyne CLI
+        run: |
+          go install fyne.io/fyne/v2/cmd/fyne@latest
+          $HOME/go/bin/fyne version
+      - name: Fyne Package
+        run: |
+          go generate -v
+          $HOME/go/bin/fyne package -icon icon.png
+      - name: Zip Release
+        uses: TheDoctor0/zip-release@main
+        with:
+          type: 'zip'
+          filename: 'gocalcapp-mac.zip'
+          path: 'gocalcapp.app'
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'gocalcapp-mac.zip'
+          path: '.'
+      - name: Add to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./gocalcapp-mac.zip
+          asset_name: gocalcapp-mac.zip
+          asset_content_type: application/zip

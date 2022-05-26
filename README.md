@@ -8,9 +8,14 @@ For syntax, see https://github.com/Knetic/govaluate/blob/master/MANUAL.md with t
 
   * `^` is converted to `**` (power)
   * `1.3e-3` etc is converted to float64
-  * You can assign variables `a=1+3` (if you don't, the result is assigned to `r<number>`), and use them `a*2`.
+  * You can assign variables `a=1+3` (if you don't, the result is assigned to `r<number>`), and use them `a*2`
 
 float64 is used internally, use mathematica if you need arbitrary precision math: `1+1e-19-1 == 0`
 
 ### Build
-See `.travis.yml`.
+See `.github/workflows/go.yml`.
+
+### Uses
+  * [fyne](https://github.com/fyne-io/fyne) as GUI
+  * [govaluate](https://github.com/Knetic/govaluate) to evaluate expressions
+  * [action-automatic-releases](https://github.com/marvinpinto/action-automatic-releases) to create cross-platform releases using github actions.
