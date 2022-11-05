@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
@@ -20,15 +19,31 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-func newInputField(c *calc) *inputField {
-	search := widget.NewEntry()
-	search.SetPlaceHolder(`Expression or "help"`)
-	return &inputField{search, c}
-}
+// https://developer.fyne.io/extend/numerical-entry.html
 
 type inputField struct {
 	*widget.Entry
 	c *calc
+}
+
+func newInputField(c *calc) *inputField {
+	e := &widget.Entry{} // don't use NewEntry https://github.com/fyne-io/fyne/issues/1624
+	e.SetPlaceHolder(`Expression or "help"`)
+	eif := &inputField{e, c}
+	eif.ExtendBaseWidget(eif) // crucial for operation/focus https://github.com/fyne-io/fyne/issues/537
+	return eif
+}
+
+type historyField struct {
+	*widget.Entry
+	c *calc
+}
+
+func newHistoryField(c *calc) *historyField {
+	e := &widget.Entry{}
+	ehf := &historyField{e, c}
+	ehf.ExtendBaseWidget(ehf)
+	return ehf
 }
 
 func (s *inputField) walkHistory(diff int) {
@@ -59,10 +74,6 @@ func (s *inputField) TypedKey(key *fyne.KeyEvent) {
 	}
 }
 
-// func (s *inputField) createRenderer() fyne.WidgetRenderer {
-// 	return widget.Renderer(s.Entry)
-// }
-
 func (s *inputField) mySetText(t string) {
 	s.Entry.SetText(t)
 	s.c.window.Canvas().Refresh(s.c.window.Content()) // important, bug?
@@ -74,11 +85,31 @@ func (s *inputField) mySetText(t string) {
 	}
 }
 
+func (e *historyField) TypedKey(key *fyne.KeyEvent) {
+	switch key.Name {
+	case fyne.KeyEscape: // escape go back to input
+		e.c.window.Canvas().Focus(e.c.input)
+	default:
+	}
+}
+
+func (e *historyField) TypedRune(r rune) {
+	// ignore all input
+}
+
+func (e *historyField) TypedShortcut(shortcut fyne.Shortcut) {
+	_, ok := shortcut.(*fyne.ShortcutCopy)
+	if ok { // only allow copy, not paste
+		e.Entry.TypedShortcut(shortcut)
+		return
+	}
+}
+
 type calc struct {
 	input        *inputField
 	inputHistory []string
 	inputHistPos int
-	history      *widget.Entry
+	history      *historyField
 	scrollhist   *container.Scroll
 	window       fyne.Window
 	functions    map[string]govaluate.ExpressionFunction
@@ -89,9 +120,8 @@ type calc struct {
 }
 
 func (c *calc) histScrollToEnd() {
-	// c.scrollhist.ScrollToBottom() // doesn't work
-	c.history.CursorRow = strings.Count(c.history.Text, "\n") + 1 // hack
-	log.Println("scrolltoend!!! ", c.scrollhist.Offset.Y)
+	c.scrollhist.ScrollToBottom()
+	// c.history.CursorRow = strings.Count(c.history.Text, "\n") + 1 // hack not needed anymore
 }
 
 func (c *calc) addToHistory(eres string) {
@@ -215,7 +245,7 @@ func (c *calc) evaluate() {
 
 func (c *calc) loadUI(app fyne.App) {
 	c.input = newInputField(c)
-	c.history = widget.NewMultiLineEntry()
+	c.history = newHistoryField(c)
 	// history.SetReadOnly(true) // then can't select
 	c.scrollhist = container.NewVScroll(c.history)
 	c.scrollhist.Resize(fyne.NewSize(200, 200))
@@ -238,19 +268,21 @@ func (c *calc) loadUI(app fyne.App) {
 
 	c.window.Show()
 
+	c.window.Canvas().Focus(c.history)
+	c.histScrollToEnd()
+
 	c.window.Canvas().Focus(c.input)
 
 	c.window.SetOnClosed(func() {
 		c.saveSettings()
 	})
 
-	c.histScrollToEnd() // doesn't work here
 }
 
 func (c *calc) loadSettings() {
 	log.Println("Load config from ", c.configFile)
 
-	b, err := ioutil.ReadFile(c.configFile)
+	b, err := os.ReadFile(c.configFile)
 	if err == nil {
 		c.history.SetText(string(b))
 		for _, line := range strings.Split(c.history.Text, "\n") {
@@ -292,7 +324,7 @@ func (c *calc) saveSettings() {
 			s += line + "\n"
 		}
 	}
-	err := ioutil.WriteFile(c.configFile, []byte(s), os.ModePerm)
+	err := os.WriteFile(c.configFile, []byte(s), os.ModePerm)
 	if err != nil {
 		log.Println("error writing config: ", err)
 	}
