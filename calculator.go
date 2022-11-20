@@ -29,6 +29,7 @@ type inputField struct {
 func newInputField(c *calc) *inputField {
 	e := &widget.Entry{} // don't use NewEntry https://github.com/fyne-io/fyne/issues/1624
 	e.SetPlaceHolder(`Expression or "help"`)
+	e.Wrapping = fyne.TextWrapBreak // this enables scrolling if too wide
 	eif := &inputField{e, c}
 	eif.ExtendBaseWidget(eif) // crucial for operation/focus https://github.com/fyne-io/fyne/issues/537
 	return eif
@@ -191,7 +192,7 @@ func (c *calc) evaluate() {
 	text1 := strings.TrimSpace(c.input.Text)
 	log.Println("eval: ", text1)
 	if text1 == "help" {
-		c.addToHistory(taginf + " Go Calc App")
+		c.addToHistory(taginf + " Go Calc App https://github.com/wolfgangasdf/gocalcapp")
 		c.addToHistory(taginf + " Enter expressions: 1e5*sin(2*pi)")
 		c.addToHistory(taginf + " Escape clears input field")
 		c.addToHistory(taginf + " Assign variables: a=sqrt(2)")
@@ -247,7 +248,7 @@ func (c *calc) loadUI(app fyne.App) {
 	c.input = newInputField(c)
 	c.history = newHistoryField(c)
 	// history.SetReadOnly(true) // then can't select
-	c.scrollhist = container.NewVScroll(c.history)
+	c.scrollhist = container.NewScroll(c.history)
 	c.scrollhist.Resize(fyne.NewSize(200, 200))
 
 	c.window = app.NewWindow("Calc")
