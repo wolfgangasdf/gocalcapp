@@ -9,8 +9,9 @@ For syntax, see https://github.com/Knetic/govaluate/blob/master/MANUAL.md with t
   * `^` is converted to `**` (power)
   * `1.3e-3` etc is converted to float64
   * You can assign variables `a=1+3` (if you don't, the result is assigned to `r<number>`), and use them `a*2`
+  * There is currently one setting, the output number format for calculations. It can be changed by entering e.g. `!outformat=%.8e`. See https://pkg.go.dev/fmt for syntax.
 
-float64 is used internally, use mathematica if you need arbitrary precision math: `1+1e-19-1 == 0`
+float64 is used for calculations, here is `1+1e-19-1 == 0`.
 
 ### Screenshot
 ![screenshot](https://user-images.githubusercontent.com/3457813/202898836-c3b45602-a5e1-40fd-ab45-e361902c78ef.png)

@@ -108,7 +108,7 @@ func (e *historyField) TypedShortcut(shortcut fyne.Shortcut) {
 
 type calc struct {
 	input        *inputField
-	inputHistory []string
+	inputHistory []string // array of entered inputs for cursur up/down history
 	inputHistPos int
 	history      *historyField
 	scrollhist   *container.Scroll
@@ -116,6 +116,7 @@ type calc struct {
 	functions    map[string]govaluate.ExpressionFunction
 	parameters   map[string]interface{} // variables
 	configFile   string
+	outformat    string
 	lastR        int // highest used rXXX variable
 	reResVar     *regexp.Regexp
 }
@@ -183,9 +184,11 @@ func (c *calc) evalExpression(text1 string) (float64, bool, string, error) {
 
 const tagres = "   "
 const taginf = "?  "
+const tagsett = "!"
+const tagsettoutformat = tagsett + "outformat"
 
 func (c *calc) f2s(f float64) string {
-	return fmt.Sprintf("%.14g", f)
+	return fmt.Sprintf(c.outformat, f)
 }
 
 func (c *calc) evaluate() {
@@ -199,7 +202,9 @@ func (c *calc) evaluate() {
 		c.addToHistory(taginf + " Use variables: sin(2*a)")
 		c.addToHistory(taginf + " Show variables: var")
 		c.addToHistory(taginf + " Clear history and vars: clr")
-		funs := reflect.ValueOf(c.functions).MapKeys() // not nice
+		c.addToHistory(taginf + ` Change settings: !outformat=%.8e`)
+		c.addToHistory(taginf + " !outformat=" + c.outformat)
+		funs := reflect.ValueOf(c.functions).MapKeys() // show functions, not nice
 		s := ""
 		for i := 0; i < len(funs); i++ {
 			if i == len(funs)-1 || (i%5 == 0 && len(s) > 0) {
@@ -223,6 +228,10 @@ func (c *calc) evaluate() {
 				c.addToHistory(taginf + k + " = " + c.f2s(v.(float64)))
 			}
 		}
+		c.input.mySetText("")
+		return
+	} else if strings.HasPrefix(text1, tagsettoutformat+"=") {
+		c.outformat = strings.TrimPrefix(text1, tagsettoutformat+"=")
 		c.input.mySetText("")
 		return
 	}
@@ -282,36 +291,42 @@ func (c *calc) loadUI(app fyne.App) {
 
 func (c *calc) loadSettings() {
 	log.Println("Load config from ", c.configFile)
-
+	c.outformat = "%g"
 	b, err := os.ReadFile(c.configFile)
 	if err == nil {
-		c.history.SetText(string(b))
-		for _, line := range strings.Split(c.history.Text, "\n") {
-			if strings.HasPrefix(line, tagres) {
-				// replace by calling evaluate above? but have to split function...
-				isass, asspara, assexpr := c.isAssignment(line)
-				if isass {
-					f, err := strconv.ParseFloat(assexpr, 64)
-					if err == nil {
-						c.parameters[asspara] = f
-						// update c.lastR
-						res := c.reResVar.FindStringSubmatch(asspara)
-						if len(res) == 2 {
-							res2, err := strconv.Atoi(res[1])
-							if err == nil {
-								if res2 > c.lastR {
-									c.lastR = res2
+		var htext = ""
+		for _, line := range strings.Split(string(b), "\n") {
+			if strings.HasPrefix(line, tagsettoutformat+"=") {
+				c.outformat = strings.TrimPrefix(line, tagsettoutformat+"=")
+			} else { // reload variable assignments
+				htext = htext + line + "\n"
+				if strings.HasPrefix(line, tagres) {
+					// replace by calling evaluate above? but have to split function...
+					isass, asspara, assexpr := c.isAssignment(line)
+					if isass {
+						f, err := strconv.ParseFloat(assexpr, 64)
+						if err == nil {
+							c.parameters[asspara] = f
+							// update c.lastR
+							res := c.reResVar.FindStringSubmatch(asspara)
+							if len(res) == 2 {
+								res2, err := strconv.Atoi(res[1])
+								if err == nil {
+									if res2 > c.lastR {
+										c.lastR = res2
+									}
 								}
 							}
+						} else {
+							log.Println("error load line: ", err, line)
 						}
-					} else {
-						log.Println("error load line: ", err, line)
 					}
+				} else if line != "" {
+					c.inputHistory = append(c.inputHistory, line)
 				}
-			} else if line != "" {
-				c.inputHistory = append(c.inputHistory, line)
 			}
 		}
+		c.history.SetText(htext)
 	} else {
 		log.Println("error reading config: ", err)
 	}
@@ -320,8 +335,9 @@ func (c *calc) loadSettings() {
 func (c *calc) saveSettings() {
 	log.Println("Save config to ", c.configFile)
 	s := ""
+	s += tagsettoutformat + "=" + c.outformat + "\n"
 	for _, line := range strings.Split(c.history.Text, "\n") {
-		if !strings.HasPrefix(line, taginf) && line != "" {
+		if !strings.HasPrefix(line, taginf) && !strings.HasPrefix(line, tagsett) && line != "" {
 			s += line + "\n"
 		}
 	}

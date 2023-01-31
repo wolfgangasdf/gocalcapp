@@ -1,9 +1,9 @@
 module github.com/wolfgangasdf/gocalcapp
 
-go 1.18
+go 1.19
 
 require (
-	fyne.io/fyne/v2 v2.2.3
+	fyne.io/fyne/v2 v2.2.4
 	github.com/Knetic/govaluate v3.0.0+incompatible
 )
 
