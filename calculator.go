@@ -123,7 +123,7 @@ type calc struct {
 
 func (c *calc) histScrollToEnd() {
 	c.scrollhist.ScrollToBottom()
-	// c.history.CursorRow = strings.Count(c.history.Text, "\n") + 1 // hack not needed anymore
+	c.history.CursorRow = strings.Count(c.history.Text, "\n") + 1 // hack
 }
 
 func (c *calc) addToHistory(eres string) {
