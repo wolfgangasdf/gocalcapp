@@ -19,89 +19,82 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-// https://developer.fyne.io/extend/numerical-entry.html
-
 type inputField struct {
-	*widget.Entry
+	widget.Entry
 	c *calc
 }
 
-func newInputField(c *calc) *inputField {
-	e := &widget.Entry{} // don't use NewEntry https://github.com/fyne-io/fyne/issues/1624
-	e.SetPlaceHolder(`Expression or "help"`)
-	e.Wrapping = fyne.TextWrapBreak // this enables scrolling if too wide
-	eif := &inputField{e, c}
+func newInputField(c *calc) *inputField { // https://developer.fyne.io/extend/numerical-entry.html
+	eif := &inputField{widget.Entry{}, c}
+	eif.SetPlaceHolder(`Expression or "help"`)
 	eif.ExtendBaseWidget(eif) // crucial for operation/focus https://github.com/fyne-io/fyne/issues/537
 	return eif
 }
 
 type historyField struct {
-	*widget.Entry
+	widget.Entry
 	c *calc
 }
 
 func newHistoryField(c *calc) *historyField {
-	e := &widget.Entry{}
-	ehf := &historyField{e, c}
+	ehf := &historyField{widget.Entry{}, c}
 	ehf.ExtendBaseWidget(ehf)
 	return ehf
 }
 
-func (s *inputField) walkHistory(diff int) {
-	s.c.inputHistPos += diff
-	if s.c.inputHistPos < 0 || s.c.inputHistPos > len(s.c.inputHistory)-1 {
-		s.c.inputHistPos = 0
+func (i *inputField) walkHistory(diff int) {
+	i.c.inputHistPos += diff
+	if i.c.inputHistPos < 0 || i.c.inputHistPos > len(i.c.inputHistory)-1 {
+		i.c.inputHistPos = 0
 	}
-	if s.c.inputHistPos == 0 {
-		s.mySetText("")
+	if i.c.inputHistPos == 0 {
+		i.mySetText("")
 	} else {
-		s.mySetText(s.c.inputHistory[len(s.c.inputHistory)-s.c.inputHistPos])
+		i.mySetText(i.c.inputHistory[len(i.c.inputHistory)-i.c.inputHistPos])
 	}
 }
 
-func (s *inputField) TypedKey(key *fyne.KeyEvent) {
+func (i *inputField) TypedKey(key *fyne.KeyEvent) {
 	switch key.Name {
 	case fyne.KeyReturn:
-		s.c.evaluate()
+		i.c.evaluate()
 	case fyne.KeyEscape:
-		s.mySetText("")
+		i.mySetText("")
 	case fyne.KeyUp:
-		s.walkHistory(1)
+		i.walkHistory(1)
 	case fyne.KeyDown:
-		s.walkHistory(-1)
+		i.walkHistory(-1)
 	default:
-		s.Entry.TypedKey(key)
-		s.c.window.Canvas().Refresh(s.c.window.Content()) // important, bug?
+		i.Entry.TypedKey(key)
 	}
 }
 
-func (s *inputField) mySetText(t string) {
-	s.Entry.SetText(t)
-	s.c.window.Canvas().Refresh(s.c.window.Content()) // important, bug?
-	if t != "" {                                      // select all
-		s.Entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyHome})
-		s.Entry.KeyDown(&fyne.KeyEvent{Name: desktop.KeyShiftLeft})
-		s.Entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyEnd})
-		s.Entry.KeyUp(&fyne.KeyEvent{Name: desktop.KeyShiftLeft})
+func (i *inputField) mySetText(t string) {
+	i.Entry.SetText(t)
+	if t != "" { // select all
+		i.Entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyHome})
+		i.Entry.KeyDown(&fyne.KeyEvent{Name: desktop.KeyShiftLeft})
+		i.Entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyEnd})
+		i.Entry.KeyUp(&fyne.KeyEvent{Name: desktop.KeyShiftLeft})
 	}
 }
 
-func (e *historyField) TypedKey(key *fyne.KeyEvent) {
+func (h *historyField) TypedKey(key *fyne.KeyEvent) {
 	switch key.Name {
 	case fyne.KeyEscape: // escape go back to input
-		e.c.window.Canvas().Focus(e.c.input)
+		h.c.window.Canvas().Focus(h.c.input)
 	default:
 	}
 }
 
-func (e *historyField) TypedRune(r rune) {
+func (h *historyField) TypedRune(r rune) {
 	// ignore all input
 }
 
-func (e *historyField) TypedShortcut(shortcut fyne.Shortcut) {
+func (h *historyField) TypedShortcut(shortcut fyne.Shortcut) {
 	_, ok := shortcut.(*fyne.ShortcutCopy)
 	if ok { // only allow copy, not paste
-		e.Entry.TypedShortcut(shortcut)
+		h.Entry.TypedShortcut(shortcut)
 		return
 	}
 }
@@ -127,8 +120,9 @@ func (c *calc) histScrollToEnd() {
 }
 
 func (c *calc) addToHistory(eres string) {
-	c.history.SetText(c.history.Text + "\n" + eres)
+	c.history.Append("\n" + eres)
 	c.histScrollToEnd()
+	c.history.Entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyUp}) // clear selection in history otherwise funny
 	c.inputHistPos = 0
 }
 

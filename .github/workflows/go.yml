@@ -32,7 +32,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.21
+          go-version: 1.22
       - name: Install Fyne CLI
         run: |
           go install fyne.io/fyne/v2/cmd/fyne@latest
@@ -68,7 +68,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.21
+          go-version: 1.22
       - name: Install Fyne CLI
         run: |
           go install fyne.io/fyne/v2/cmd/fyne@latest
@@ -106,7 +106,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.21
+          go-version: 1.22
       - name: Install Fyne CLI
         run: |
           go install fyne.io/fyne/v2/cmd/fyne@latest
