@@ -43,7 +43,7 @@ jobs:
           $HOME/go/bin/fyne package -icon icon.png
           mv gocalcapp.tar.xz gocalcapp-linux.tar.xz
       - name: Upload package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: 'gocalcapp-linux.tar.xz'
           path: '.'
@@ -84,7 +84,7 @@ jobs:
           filename: 'gocalcapp-windows.zip'
           path: 'gocalcapp.exe'
       - name: Upload package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: 'gocalcapp-windows.zip'
           path: '.'
@@ -122,7 +122,7 @@ jobs:
           filename: 'gocalcapp-mac.zip'
           path: 'gocalcapp.app'
       - name: Upload package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: 'gocalcapp-mac.zip'
           path: '.'
