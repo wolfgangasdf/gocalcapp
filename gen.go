@@ -4,12 +4,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
 func genasset(file string, outfile string, funcname string) {
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	fmt.Println("Generating " + outfile + " from " + file + "...")
 	if err != nil {
 		panic(err)
@@ -19,7 +18,7 @@ func genasset(file string, outfile string, funcname string) {
 		s += fmt.Sprintf("0x%.2x, ", b)
 	}
 	s += "}\n}"
-	ioutil.WriteFile(outfile, []byte(s), os.ModePerm)
+	os.WriteFile(outfile, []byte(s), os.ModePerm)
 }
 
 func main() {
